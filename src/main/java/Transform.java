@@ -19,6 +19,7 @@ public class Transform {
     public static int steps = 0;
     public static boolean gs = false;
     public static ArrayList<Integer> hist = new ArrayList<Integer>();
+    public static ArrayList<Integer> rhist = new ArrayList<Integer>();
     public static int[][] temp = new int[0][0];
     public static int N = 3;
     public static int level = 5;
@@ -80,6 +81,7 @@ public class Transform {
 
     public static int[][] mystery(final int[][] originalImage) {
         hist.clear();
+        rhist.clear();
         gs = false;
 
         int[] a = new int[N * N];
@@ -147,9 +149,14 @@ public class Transform {
     }
 
     public static int[][] lessRed(final int[][] originalImage, final int amount) {
-        N--;
-        return mystery(originalImage);
+        if (N <= 2) {
+            return mystery(originalImage);
+        } else {
+            N--;
+            return mystery(originalImage);
+        }
     }
+
     public static int[][] moreGreen(final int[][] originalImage, final int amount) {
         level+=10;
         return mystery(originalImage);
@@ -180,6 +187,9 @@ public class Transform {
             map[j0][i0] = map[j0][i0 + 1];
             map[j0][i0 + 1] = 0;
             hist.add(1);
+            if (amount == DEFAULT_POSITION_SHIFT) {
+                rhist.clear();
+            }
             steps++;
             flag = true;
         }
@@ -231,6 +241,9 @@ public class Transform {
             map[j0][i0] = map[j0][i0 - 1];
             map[j0][i0 - 1] = 0;
             hist.add(2);
+            if (amount == DEFAULT_POSITION_SHIFT) {
+                rhist.clear();
+            }
             steps++;
             flag = true;
         }
@@ -280,6 +293,9 @@ public class Transform {
             map[j0][i0] = map[j0 + 1][i0];
             map[j0 + 1][i0] = 0;
             hist.add(3);
+            if (amount == DEFAULT_POSITION_SHIFT) {
+                rhist.clear();
+            }
             steps++;
             flag = true;
         }
@@ -331,6 +347,9 @@ public class Transform {
             map[j0][i0] = map[j0 - 1][i0];
             map[j0 - 1][i0] = 0;
             hist.add(4);
+            if (amount == DEFAULT_POSITION_SHIFT) {
+                rhist.clear();
+            }
             steps++;
             flag = true;
         }
@@ -370,21 +389,25 @@ public class Transform {
             case 1:
                 temp = shiftRight(originalImage, 1);
                 hist.remove(hist.size() - 1);
+                rhist.add(1);
                 hist.remove(hist.size() - 1);
                 return temp;
             case 2:
                 temp = shiftLeft(originalImage, 1);
                 hist.remove(hist.size() - 1);
+                rhist.add(2);
                 hist.remove(hist.size() - 1);
                 return temp;
             case 3:
                 temp = shiftDown(originalImage, 1);
                 hist.remove(hist.size() - 1);
+                rhist.add(3);
                 hist.remove(hist.size() - 1);
                 return temp;
             case 4:
                 temp = shiftUp(originalImage, 1);
                 hist.remove(hist.size() - 1);
+                rhist.add(4);
                 hist.remove(hist.size() - 1);
                 return temp;
             default:
@@ -403,28 +426,32 @@ public class Transform {
      * @return sadg
      */
     public static int[][] rotateRight(final int[][] originalImage) {
-        int hori = originalImage.length;
-        int verti = originalImage[0].length;
-        int[][] shiftImage = new int[hori][verti];
-        shiftImage = paint(hori, verti);
-        double centerx = (hori - 1) * 1.0 / 2.0;
-        double centery = (verti - 1) * 1.0 / 2.0;
-        double shor = centerx;
-        if (centerx > centery) {
-            shor = centery;
+        int sz = rhist.size();
+        if (sz == 0) {
+            return produce(originalImage);
         }
-        for (int i = (int) (centerx - shor); i <= (int) (centerx + shor); i++) {
-            for (int j = (int) (centery - shor); j <= (int) (centery + shor); j++) {
-                double x = i - centerx;
-                double y = centery - j;
-                double x0 = -y;
-                double y0 = x;
-                int i0 = (int) (x0 + centerx);
-                int j0 = (int) (centery - y0);
-                shiftImage[i][j] = originalImage[i0][j0];
-            }
+        switch(rhist.get(sz - 1)) {
+            case 1:
+                temp = shiftLeft(originalImage, 1);
+                rhist.remove(rhist.size() - 1);
+                return temp;
+            case 2:
+                temp = shiftRight(originalImage, 1);
+                rhist.remove(rhist.size() - 1);
+                return temp;
+            case 3:
+                temp = shiftUp(originalImage, 1);
+                rhist.remove(rhist.size() - 1);
+                return temp;
+            case 4:
+                temp = shiftDown(originalImage, 1);
+                rhist.remove(rhist.size() - 1);
+                return temp;
+            default:
+                break;
         }
-        return shiftImage;
+        return produce(originalImage);
+
     }
 
     /*
@@ -762,4 +789,9 @@ public class Transform {
         }
         return shiftImage;
     }
+
+
+public void main() {
+
+}
 }

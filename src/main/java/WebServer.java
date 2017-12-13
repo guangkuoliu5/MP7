@@ -125,7 +125,7 @@ public class WebServer {
                     transformedPixels = Transform.rotateLeft(pixels0);
                     break;
                 case "rotateRight":
-                    transformedPixels = Transform.rotateRight(pixels);
+                    transformedPixels = Transform.rotateRight(pixels0);
                     break;
                 case "flipVertical":
                     transformedPixels = Transform.flipVertical(pixels);
